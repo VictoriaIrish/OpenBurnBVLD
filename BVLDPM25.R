@@ -30,7 +30,7 @@ ROLLING_24_AVG %>%
   scale_x_datetime(date_breaks = "3 months", date_labels = "%b %Y")
 
 # Plot with highlighted Sept-Nov regions
-ROLLING_24_AVG %>%
+BVLDPM_PLOT <- ROLLING_24_AVG %>%
   ggplot(aes(x = date, y = ROLLING_24_VALUE, color = STATION_NAME)) +
   # Add shaded regions for Sept-Nov
   geom_rect(data = ROLLING_24_AVG %>% filter(is_sept_nov),
@@ -51,4 +51,38 @@ ROLLING_24_AVG %>%
                       axis.title = element_text(size = 16),
                       strip.text.x = element_text(size = 14),
                       legend.text = element_text(size = 12),
-                      panel.grid = element_blank())
+                      panel.grid = element_blank(),
+                      legend.position = "none")
+
+BVLDPM_PLOT <- ROLLING_24_AVG %>%
+  ggplot(aes(x = date, y = ROLLING_24_VALUE, color = STATION_NAME)) +
+  # Add shaded regions for Sept-Nov
+  geom_rect(data = ROLLING_24_AVG %>% filter(is_sept_nov),
+            aes(xmin = date, xmax = date + days(1), ymin = -Inf, ymax = Inf),
+            inherit.aes = FALSE, fill = "bisque3", alpha = 0.1) +
+  geom_line() +
+  geom_hline(yintercept = 25, col = "red", linetype = "dotted") +
+  ylim(0, 100) +
+  labs(x = "Date", 
+       y = expression(paste("Rolling 24-hr average ", PM[2.5])),
+       color = "") +
+  facet_wrap(~ STATION_NAME, ncol = 1) +
+  scale_x_datetime(date_breaks = "3 months", date_labels = "%b %Y") +
+  theme_bw() + 
+  theme(axis.text = element_text(size = 12),
+        axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5),
+        axis.title = element_text(size = 16),
+        strip.text.x = element_text(size = 14),
+        legend.text = element_text(size = 12),
+        panel.grid = element_blank(),
+        legend.position = "none")  # Removed duplicate entry
+
+BVLDPM_PLOT
+
+ggsave("BVLD Rolling 24hr average pm25.png",
+       plot = BVLDPM_PLOT,
+       width = 10,
+       height = 6,
+       units = "in",
+       dpi = 300
+)
